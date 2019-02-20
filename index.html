@@ -1,0 +1,282 @@
+<!-- IoT Control Panel Webpage for Keysight Smart Home Project - Afeeq Amiruddin (afeeq@myrekatech.com) 20190219 -->
+<!DOCTYPE html>
+<html>
+<head>
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
+<script type = "text/javascript" language = "javascript">
+    var mqtt;
+    var reconnectTimeout = 2000;
+    var host="broker.hivemq.com";
+    var port=8000;
+    
+    // Threshold constants
+    const tempLow = 24.00;
+    const tempHigh = 27.00;
+    const soundLow = 50.00;
+    const soundHigh = 60.00;
+    const humLow = 51.00;
+    const humHigh = 55.00
+    
+    // Arrays storing HTML IDs for each individual indicator text and image
+    var tempTextArr = ["temp0", "temp1", "temp2", "temp3", "temp4"];
+    var tempImgArr = ["temp0img", "temp1img", "temp2img", "temp3img", "temp4img"];
+    var soundTextArr = ["sound0", "sound1", "sound2", "sound3", "sound4"];
+    var soundImgArr = ["sound0img", "sound1img", "sound2img", "sound3img", "sound4img"];
+    var humTextArr = ["hum0", "hum1", "hum2", "hum3", "hum4"];
+    var humImgArr = ["hum0img", "hum1img", "hum2img", "hum3img", "hum4img"];
+
+    function onFailure(message) {
+        console.log("Connection Attempt to Host "+host+"Failed");
+        setTimeout(MQTTconnect, reconnectTimeout);
+    }
+    
+    function onMessageArrived(msg){
+        out_msg="Message received "+msg.payloadString+"<br>";
+        out_msg=out_msg+"Message received Topic "+msg.destinationName;
+        console.log(out_msg);
+
+        var iotData = JSON.parse(msg.payloadString);
+        var iotID = parseInt(iotData.id);
+        
+        // Temporarily use same iotData value for all indicators (loop through all iotID)
+
+        for (iotID = 0; iotID <5; iotID++) {
+            
+        document.getElementById(tempTextArr[iotID]).innerHTML = `${iotData.temperature.slice(0, -1)} °C`;
+        document.getElementById(humTextArr[iotID]).innerHTML = `${iotData.humidity.slice(0, -1)} %RH`;
+        document.getElementById(soundTextArr[iotID]).innerHTML = `${iotData.sound.slice(0, -1)} dB`;
+        
+        var tempData = parseFloat(iotData.temperature);
+        var soundData = parseFloat(iotData.sound);
+        var humData = parseFloat(iotData.humidity);
+        
+        // Change temperature image
+        var tempImg = "temperature_cold.png"
+        
+        if (tempData <= tempLow) tempImg = "temperature_cold.png";
+        else if (tempData >= tempHigh) tempImg = "temperature_hot.png";
+        else tempImg = "temperature_warm.png";
+        
+        document.getElementById(tempImgArr[iotID]).src = tempImg;
+        
+        // Change sound image
+        var soundImg = "sound_low.png"
+        
+        if (soundData <= soundLow) soundImg = "sound_low.png";
+        else if (soundData >= soundHigh) soundImg = "sound_high.png";
+        else soundImg = "sound_med.png";
+        
+        document.getElementById(soundImgArr[iotID]).src = soundImg;
+        
+        // Change humidity image
+        var humImg = "humidity_low.png"
+        
+        if (humData <= humLow) humImg = "humidity_low.png";
+        else if (humData >= humHigh) humImg = "humidity_high.png";
+        else humImg = "humidity_med.png";
+        
+        document.getElementById(humImgArr[iotID]).src = humImg;
+        }
+    }
+
+    function onConnect() {
+    // Once a connection has been made, make a subscription and send a message
+    console.log("Connected");
+    mqtt.subscribe("PSCIOT/#");
+    }
+    
+    function MQTTconnect() {
+    console.log("connecting to "+ host +" "+ port);
+    mqtt = new Paho.MQTT.Client(host,port,"clientjs");
+    var options = {
+        timeout: 3,
+        onSuccess: onConnect,
+        onFailure: onFailure,
+         };
+    mqtt.onMessageArrived = onMessageArrived
+
+    mqtt.connect(options);
+    }
+    
+</script>     
+    
+</head>
+    
+<body>
+
+    <div class="background">
+    <img src="location_base.png" alt="Background" class="layout">
+
+        <div class="indicator0">
+            <p id="temp0" class="indicator-text-temp">0 °C</p>
+            <p id="hum0" class="indicator-text-hum">0 %RH</p>
+            <p id="sound0" class="indicator-text-sound">0 dB</p>
+            
+            <img id="temp0img" class="indicator-img-temp" src="temperature_cold.png">
+            <img id="sound0img" class="indicator-img-sound" src="sound_low.png">
+            <img id="hum0img" class="indicator-img-hum" src="humidity_low.png">
+            
+        </div>
+        
+        <div class="indicator1">
+            <p id="temp1" class="indicator-text-temp">0 °C</p>
+            <p id="hum1" class="indicator-text-hum">0 %RH</p>
+            <p id="sound1" class="indicator-text-sound">0 dB</p>
+            
+            <img id="temp1img" class="indicator-img-temp" src="temperature_cold.png">
+            <img id="sound1img" class="indicator-img-sound" src="sound_low.png">
+            <img id="hum1img" class="indicator-img-hum" src="humidity_low.png">
+            
+        </div>
+        
+        <div class="indicator2">
+            <p id="temp2" class="indicator-text-temp">0 °C</p>
+            <p id="hum2" class="indicator-text-hum">0 %RH</p>
+            <p id="sound2" class="indicator-text-sound">0 dB</p>
+            
+            <img id="temp2img" class="indicator-img-temp" src="temperature_cold.png">
+            <img id="sound2img" class="indicator-img-sound" src="sound_low.png">
+            <img id="hum2img" class="indicator-img-hum" src="humidity_low.png">
+            
+        </div>
+        
+        <div class="indicator3">
+            <p id="temp3" class="indicator-text-temp">0 °C</p>
+            <p id="hum3" class="indicator-text-hum">0 %RH</p>
+            <p id="sound3" class="indicator-text-sound">0 dB</p>
+            
+            <img id="temp3img" class="indicator-img-temp" src="temperature_cold.png">
+            <img id="sound3img" class="indicator-img-sound" src="sound_low.png">
+            <img id="hum3img" class="indicator-img-hum" src="humidity_low.png">
+            
+        </div>
+        
+        <div class="indicator4">
+            <p id="temp4" class="indicator-text-temp">0 °C</p>
+            <p id="hum4" class="indicator-text-hum">0 %RH</p>
+            <p id="sound4" class="indicator-text-sound">0 dB</p>
+            
+            <img id="temp4img" class="indicator-img-temp" src="temperature_cold.png">
+            <img id="sound4img" class="indicator-img-sound" src="sound_low.png">
+            <img id="hum4img" class="indicator-img-hum" src="humidity_low.png">
+            
+        </div>
+    </div>
+
+    <script>
+        MQTTconnect();
+    </script>
+    
+</body>
+</html>
+
+<style>
+    
+    div.background {
+        position: relative;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    div.indicator0 {
+        position: absolute;
+        top: 3%;
+        left: 64%;
+        width: 25%;
+        height: 20%;
+    }
+    
+    div.indicator1 {
+        position: absolute;
+        top: 13%;
+        left: 42%;
+        width: 25%;
+        height: 20%;
+    }
+    
+    div.indicator2 {
+        position: absolute;
+        top: 9%;
+        left: 14%;
+        width: 25%;
+        height: 20%;
+    }
+    
+    div.indicator3 {
+        position: absolute;
+        top: 75%;
+        left: 21%;
+        width: 25%;
+        height: 20%;
+    }
+    
+    div.indicator4 {
+        position: absolute;
+        top: 50%;
+        left: 62%;
+        width: 25%;
+        height: 20%;
+    }
+    
+    .layout {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 70%;
+    }
+    
+    .indicator-text-temp {
+        font-size: 1.3vw;
+        font-family: sans-serif;
+        margin-top: 0px;
+        margin-bottom: 0px;
+        position: relative;
+        top: 20%;
+        left: 11%;
+    } 
+    
+    .indicator-text-hum {
+        font-size: 1.3vw;
+        font-family: sans-serif;
+        margin-top: 0px;
+        margin-bottom: 0px;
+        position: relative;
+        top: 83%;
+        left: 51%;
+    } 
+    
+    .indicator-text-sound {
+        font-size: 1.3vw;
+        font-family: sans-serif;
+        margin-top: 0px;
+        margin-bottom: 0px;
+        position: relative;
+        bottom: -2%;
+        left: 33%;
+    } 
+    
+    .indicator-img-temp {
+        width: 11%;
+        position:  absolute;
+        top: 39%;
+        left: 14%;
+    }
+    
+    .indicator-img-sound {
+        width: 18%;
+        position: absolute;
+        top: 53%;
+        left: 34%;
+    }
+    
+    .indicator-img-hum {
+        width: 16%;
+        position: absolute;
+        top: 50%;
+        left: 56%;
+    }
+    
+</style>
+        
