@@ -93,7 +93,7 @@
     mqtt = new Paho.MQTT.Client(host,port,"clientjs");
     var options = {
         timeout: 3,
-        useSSL: tls,
+        useSSL: true,
         onSuccess: onConnect,
         onFailure: onFailure,
          };
