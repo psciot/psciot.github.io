@@ -9,10 +9,10 @@
     var reconnectTimeout = 2000;
     //var host="broker.hivemq.com";
     //var port=8000;
-    //var host="iot.eclipse.org";
-    //var port=443;
-    var host="test.mosquitto.org";
-    var port=8081;
+    var host="iot.eclipse.org";
+    var port=443;
+    //var host="test.mosquitto.org";
+    //var port=8081;
     
     // Threshold constants
     const tempLow = 24.00;
@@ -95,8 +95,7 @@
     mqtt = new Paho.MQTT.Client(host,port,"clientjs");
     var options = {
         timeout: 3,
-        useSSL: false,
-        useTLS: true,
+        useSSL: true,
         onSuccess: onConnect,
         onFailure: onFailure,
          };
